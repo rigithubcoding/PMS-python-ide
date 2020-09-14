@@ -89,13 +89,42 @@ class Console(tk.Frame):
         self.ttyText = tk.Text(self, wrap=tk.WORD)
         self.ttyText.pack(fill=tk.BOTH,expand=True)
 
-
-if __name__ == '__main__':
-    root = tk.Tk()
-    root.config(background="red")
-    txt = scrolledtext.ScrolledText(root, undo=True)
-    txt['font'] = ('consolas', '12')
-    txt.pack(expand=True, fill='both')
-    main_console = Console(root)
-    main_console.pack(fill=tk.BOTH,expand=True)
-    root.mainloop()
+def execute_prog(progname):
+    command="python3 "+progname
+    os.system(command)
+def save(code):
+    savedialog=tk.Tk()
+    fnamelabel=tk.Label(savedialog, text="Enter file name: ")
+    fnamelabel.pack(side="left")
+    fnameentry=tk.Entry(root, bd=10)
+    fnameentry.pack(side="top")
+    def getfilename():
+        global filename
+        filename=fnameentry.get()
+        savedialog.destroy()
+    enterbtn=tk.Button(savedialog, text="okay", command=getfilename)
+    enterbtn.pack(sid="right")
+    with open(fnameentry.get(), "w") as f:
+        f.write(code)
+        f.close()
+def close(filename):
+    with open(filename) as f:
+        f.close()
+root = tk.Tk()
+root.geometry("1000x2000")
+txt = scrolledtext.ScrolledText(root, undo=True, width=50, height=30)
+txt['font'] = ('consolas', '12')
+menubar=tk.Menu(root)
+file = tk.Menu(menubar, tearoff = 0) 
+menubar.add_cascade(label ='File', menu = file) 
+file.add_command(label ='New File', command = None) 
+file.add_command(label ='Open...', command = None) 
+file.add_command(label ='Save', command = lambda: save(txt.get("1.0", 'end-1c'))) 
+file.add_separator() 
+run=tk.Menu(root)
+main_console = Console(root)
+root.title('PMS Python IDE CE')
+txt.pack(expand=True, fill='both')
+main_console.pack(fill=tk.BOTH,expand=True)
+root.config(menu = menubar) 
+root.mainloop()
