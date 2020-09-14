@@ -1,4 +1,5 @@
 import tkinter as tk
+import tkinter.scrolledtext as scrolledtext
 import subprocess
 import queue
 import os
@@ -92,6 +93,9 @@ class Console(tk.Frame):
 if __name__ == '__main__':
     root = tk.Tk()
     root.config(background="red")
-    main_window = Console(root)
-    main_window.pack(fill=tk.BOTH,expand=True)
+    txt = scrolledtext.ScrolledText(root, undo=True)
+    txt['font'] = ('consolas', '12')
+    txt.pack(expand=True, fill='both')
+    main_console = Console(root)
+    main_console.pack(fill=tk.BOTH,expand=True)
     root.mainloop()
