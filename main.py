@@ -6,6 +6,8 @@ import os
 from threading import Thread
 import shutil
 
+filename=str()
+
 class Console(tk.Frame):
     def __init__(self,parent=None):
         tk.Frame.__init__(self, parent)
@@ -97,18 +99,19 @@ def save(code):
     fnamelabel=tk.Label(savedialog, text="Enter file name: ")
     fnamelabel.pack(side="left")
     fnameentry=tk.Entry(root, bd=10)
-    fnameentry.pack(side="top")
+    fnameentry.pack(side="right")
     def getfilename():
         global filename
         filename=fnameentry.get()
         savedialog.destroy()
+        with open(fnameentry.get(), "w+") as f:
+            f.write(code)
+            f.close()
     enterbtn=tk.Button(savedialog, text="okay", command=getfilename)
-    enterbtn.pack(sid="right")
-    with open(fnameentry.get(), "w") as f:
-        f.write(code)
-        f.close()
+    enterbtn.pack(side="bottom")
+    savedialog.geometry("200x200")
 def close(filename):
-    with open(filename) as f:
+    with open(filename, "r") as f:
         f.close()
 root = tk.Tk()
 root.geometry("1000x2000")
