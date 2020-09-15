@@ -98,7 +98,7 @@ def save(code):
     savedialog=tk.Tk()
     fnamelabel=tk.Label(savedialog, text="Enter file name: ")
     fnamelabel.pack(side="left")
-    fnameentry=tk.Entry(root, bd=10)
+    fnameentry=tk.Entry(savedialog, bd=10)
     fnameentry.pack(side="right")
     def getfilename():
         global filename
@@ -109,7 +109,8 @@ def save(code):
             f.close()
     enterbtn=tk.Button(savedialog, text="okay", command=getfilename)
     enterbtn.pack(side="bottom")
-    savedialog.geometry("200x200")
+    savedialog.geometry("500x500")
+    savedialog.title("save dialog")
 def close(filename):
     with open(filename, "r") as f:
         f.close()
