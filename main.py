@@ -7,6 +7,7 @@ from threading import Thread
 import shutil
 
 filename=str()
+END="end"
 
 class Console(tk.Frame):
     def __init__(self,parent=None):
@@ -104,7 +105,7 @@ def save(code):
         global filename
         filename=fnameentry.get()
         savedialog.destroy()
-        with open(fnameentry.get(), "w+") as f:
+        with open(filename, "w+") as f:
             f.write(code)
             f.close()
     enterbtn=tk.Button(savedialog, text="okay", command=getfilename)
