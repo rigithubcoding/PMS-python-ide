@@ -5,6 +5,12 @@ import queue
 import os
 from threading import Thread
 import shutil
+import sys
+from tkinter.messagebox import showwarning
+import py_compile
+
+if sys.platform=="win32":
+    raise SystemError("cannot run on windows")
 
 filename=str()
 END="end"
@@ -95,6 +101,7 @@ class Console(tk.Frame):
 def execute_prog(progname):
     command="python3 "+progname
     os.system(command)
+
 def save(code):
     savedialog=tk.Tk()
     fnamelabel=tk.Label(savedialog, text="Enter file name: ")
@@ -112,27 +119,55 @@ def save(code):
     enterbtn.pack(side="bottom")
     savedialog.geometry("500x500")
     savedialog.title("save dialog")
+
 def close(filename):
     with open(filename, "r") as f:
         f.close()
+
+def openfile(textbox):
+    files=os.listdir()
+    opendialog=tk.Tk()
+    files=tk.Label(opendialog, text=files)
+    fname=tk.Entry(opendialog, width=20)
+    def actuallyopen():
+        x=fname.get()
+        with open(x, "r+") as f:
+            textbox.delete(1.0, END)
+            textbox.insert(1.0, f.read())
+            f.close()
+        opendialog.destroy()
+    okaybtn=tk.Button(opendialog, text="Okay", command=actuallyopen)
+    files.pack(side="left")
+    fname.pack(side="right")
+    okaybtn.pack(side="bottom")
+
+def debug(myfile):
+    py_compile.compile(myfile, doraise=True)
+
+#create the window
 root = tk.Tk()
 root.geometry("1000x2000")
+#create editor
 txt = scrolledtext.ScrolledText(root, undo=True, width=50, height=30)
 txt['font'] = ('consolas', '12')
+#create the run and file menus
 menubar=tk.Menu(root)
 file = tk.Menu(menubar, tearoff = 0) 
 run=tk.Menu(menubar, tearoff=0)
 menubar.add_cascade(label ='File', menu = file) 
 menubar.add_cascade(label='Run', menu=run)
 file.add_command(label ='New File', command = None) 
-file.add_command(label ='Open...', command = None) 
+file.add_command(label ='Open', command = lambda: openfile(txt)) 
 file.add_command(label ='Save', command = lambda: save(txt.get("1.0", 'end-1c'))) 
 file.add_separator() 
 run.add_command(label='Run', command=lambda: execute_prog(filename))
-run=tk.Menu(root)
+run.add_command(label="debug", command=lambda: debug(filename))
+run.add_separator()
+#create instance of the console class
 main_console = Console(root)
+#set the window title
 root.title('PMS Python IDE CE')
 txt.pack(expand=True, fill='both')
-main_console.pack(fill=tk.BOTH,expand=True)
+main_console.pack(fill=tk.BOTH,expand=True, side='right')
 root.config(menu = menubar) 
 root.mainloop()
