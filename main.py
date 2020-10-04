@@ -1,5 +1,7 @@
-import tkinter as tk
+from tkinter import *
 import tkinter.scrolledtext as scrolledtext
+from tkinter.filedialog import *
+from tkinter import ttk
 import subprocess
 import queue
 import os
@@ -8,16 +10,106 @@ import shutil
 import sys
 from tkinter.messagebox import showwarning
 import py_compile
-
-if sys.platform=="win32":
-    raise SystemError("cannot run on windows")
+import term
+from idlelib.tooltip import *
+import re
 
 filename=str()
-END="end"
+file=None
+if sys.platform=='darwin':
+    exit()
 
-class Console(tk.Frame):
+class CustomNotebook(ttk.Notebook):
+    """A ttk Notebook with close buttons on each tab"""
+
+    __initialized = False
+
+    def __init__(self, *args, **kwargs):
+        if not self.__initialized:
+            self.__initialize_custom_style()
+            self.__inititialized = True
+
+        kwargs["style"] = "CustomNotebook"
+        ttk.Notebook.__init__(self, *args, **kwargs)
+
+        self._active = None
+
+        self.bind("<ButtonPress-1>", self.on_close_press, True)
+        self.bind("<ButtonRelease-1>", self.on_close_release)
+
+    def on_close_press(self, event):
+        """Called when the button is pressed over the close button"""
+
+        element = self.identify(event.x, event.y)
+
+        if "close" in element:
+            index = self.index("@%d,%d" % (event.x, event.y))
+            self.state(['pressed'])
+            self._active = index
+
+    def on_close_release(self, event):
+        """Called when the button is released over the close button"""
+        if not self.instate(['pressed']):
+            return
+
+        element =  self.identify(event.x, event.y)
+        index = self.index("@%d,%d" % (event.x, event.y))
+
+        if "close" in element and self._active == index:
+            self.forget(index)
+            self.event_generate("<<NotebookTabClosed>>")
+
+        self.state(["!pressed"])
+        self._active = None
+
+    def __initialize_custom_style(self):
+        style = ttk.Style()
+        self.images = (
+            PhotoImage("img_close", data='''
+                R0lGODlhCAAIAMIBAAAAADs7O4+Pj9nZ2Ts7Ozs7Ozs7Ozs7OyH+EUNyZWF0ZWQg
+                d2l0aCBHSU1QACH5BAEKAAQALAAAAAAIAAgAAAMVGDBEA0qNJyGw7AmxmuaZhWEU
+                5kEJADs=
+                '''),
+            PhotoImage("img_closeactive", data='''
+                R0lGODlhCAAIAMIEAAAAAP/SAP/bNNnZ2cbGxsbGxsbGxsbGxiH5BAEKAAQALAAA
+                AAAIAAgAAAMVGDBEA0qNJyGw7AmxmuaZhWEU5kEJADs=
+                '''),
+            PhotoImage("img_closepressed", data='''
+                R0lGODlhCAAIAMIEAAAAAOUqKv9mZtnZ2Ts7Ozs7Ozs7Ozs7OyH+EUNyZWF0ZWQg
+                d2l0aCBHSU1QACH5BAEKAAQALAAAAAAIAAgAAAMVGDBEA0qNJyGw7AmxmuaZhWEU
+                5kEJADs=
+            ''')
+        )
+
+        style.element_create("close", "image", "img_close",
+                            ("active", "pressed", "!disabled", "img_closepressed"),
+                            ("active", "!disabled", "img_closeactive"), border=8, sticky='')
+        style.layout("CustomNotebook", [("CustomNotebook.client", {"sticky": "nswe"})])
+        style.layout("CustomNotebook.Tab", [
+            ("CustomNotebook.tab", {
+                "sticky": "nswe", 
+                "children": [
+                    ("CustomNotebook.padding", {
+                        "side": "top", 
+                        "sticky": "nswe",
+                        "children": [
+                            ("CustomNotebook.focus", {
+                                "side": "top", 
+                                "sticky": "nswe",
+                                "children": [
+                                    ("CustomNotebook.label", {"side": "left", "sticky": ''}),
+                                    ("CustomNotebook.close", {"side": "left", "sticky": ''}),
+                                ]
+                        })
+                    ]
+                })
+            ]
+        })
+    ])
+
+class Console(Frame):
     def __init__(self,parent=None):
-        tk.Frame.__init__(self, parent)
+        Frame.__init__(self, parent)
         self.parent = parent
         self.createWidgets()
 
@@ -57,10 +149,10 @@ class Console(tk.Frame):
         self.p.stdin.flush()
         # call the destroy methods to properly destroy widgets
         self.ttyText.destroy()
-        tk.Frame.destroy(self)
+        Frame.destroy(self)
     def enter(self,e):
         "The <Return> key press handler"
-        string = self.ttyText.get(1.0, tk.END)[self.line_start:]
+        string = self.ttyText.get(1.0, END)[self.line_start:]
         self.line_start+=len(string)
         self.p.stdin.write(string.encode())
         self.p.stdin.flush()
@@ -90,23 +182,27 @@ class Console(tk.Frame):
             self.after(10,self.writeLoop)
 
     def write(self,string):
-        self.ttyText.insert(tk.END, string)
-        self.ttyText.see(tk.END)
+        self.ttyText.insert(END, string)
+        self.ttyText.see(END)
         self.line_start+=len(string)
 
     def createWidgets(self):
-        self.ttyText = tk.Text(self, wrap=tk.WORD)
-        self.ttyText.pack(fill=tk.BOTH,expand=True)
+        self.ttyText = Text(self, wrap=WORD)
+        self.ttyText.pack(fill=BOTH,expand=True)
+
+def main(master):
+    tip = ListboxToolTip(master, ["Hello", "world"])
 
 def execute_prog(progname):
     command="python3 "+progname
     os.system(command)
 
 def save(code):
-    savedialog=tk.Tk()
-    fnamelabel=tk.Label(savedialog, text="Enter file name: ")
+    '''
+    savedialog=Tk()
+    fnamelabel=Label(savedialog, text="Enter file name: ")
     fnamelabel.pack(side="left")
-    fnameentry=tk.Entry(savedialog, bd=10)
+    fnameentry=Entry(savedialog, bd=10)
     fnameentry.pack(side="right")
     def getfilename():
         global filename
@@ -115,59 +211,124 @@ def save(code):
         with open(filename, "w+") as f:
             f.write(code)
             f.close()
-    enterbtn=tk.Button(savedialog, text="okay", command=getfilename)
+    enterbtn=Button(savedialog, text="okay", command=getfilename)
     enterbtn.pack(side="bottom")
     savedialog.geometry("500x500")
     savedialog.title("save dialog")
+    '''
+    filepath = asksaveasfilename(
+        defaultextension="py",
+        filetypes=[("Python Files", "*.py"), ("All Files", "*.*"), ("Bash files", ".sh")],
+    )
+    if not filepath:
+        return
+    with open(filepath, "w") as output_file:
+        text = txt.get(1.0, END)
+        output_file.write(text)
 
-def close(filename):
-    with open(filename, "r") as f:
-        f.close()
+def close(f):
+    f.close()
 
 def openfile(textbox):
+    global file
+    try:
+        notebook.forget(txt)
+        file = askopenfilename(
+            filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")]
+        )
+        txt.delete(1.0, END)
+        with open(file, "r") as input_file:
+            text = input_file.read()
+            txt.insert(END, text)
+        root.title(f"Text Editor Application - {file}")
+        notebook.add(txt, text=file)
+    except:
+        file = askopenfilename(
+            filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")]
+        )
+        txt.delete(1.0, END)
+        with open(file, "r") as input_file:
+            text = input_file.read()
+            txt.insert(END, text)
+        root.title(f"Text Editor Application - {file}")
+        notebook.add(txt, text=file)
+    '''
+    file = askopenfile(mode="r", initialdir="/home", title="select file", filetypes=(("Python Files", "*.py"), ("All Files", "*.*"), ("Bash Files", "*.sh")))
+    root.title('PMS Python IDE CE - '+file.name)
+    txt.insert(1.0, file.read())
+    txt.insert(END, file.read())
+    file.close()
+    '''
+    '''
+    with open(file, "w+") as f:
+        txt.insert(1.0, f.read())
+        txt.insert(END, f.read())
+    ''' 
+    '''
     files=os.listdir()
-    opendialog=tk.Tk()
-    files=tk.Label(opendialog, text=files)
-    fname=tk.Entry(opendialog, width=20)
-    def actuallyopen():
-        x=fname.get()
-        with open(x, "r+") as f:
-            textbox.delete(1.0, END)
-            textbox.insert(1.0, f.read())
-            f.close()
-        opendialog.destroy()
-    okaybtn=tk.Button(opendialog, text="Okay", command=actuallyopen)
-    files.pack(side="left")
-    fname.pack(side="right")
-    okaybtn.pack(side="bottom")
+     opendialog=Tk()
+     files=Label(opendialog, text=files)
+     fname=Entry(opendialog, width=20)
+     def actuallyopen():
+         x=fname.get()
+         with open(x, "r+") as f:
+             textbox.delete(1.0, END)
+             textbox.insert(1.0, f.read())
+             f.close()
+         opendialog.destroy()
+     okaybtn=Button(opendialog, text="Okay", command=actuallyopen)
+     files.pack(side="left")
+     fname.pack(side="right")
+     okaybtn.pack(side="bottom")
+     '''
+def new():
+    nexttxt=scrolledtext.ScrolledText(notebook, undo=True, width=30, height=30)
+    nexttxt['font'] = ('consolas', '12')
+    notebook.add(nexttxt,text='New File')
 
 def debug(myfile):
-    py_compile.compile(myfile, doraise=True)
-
+    (py_compile.compile(myfile, doraise=True))
 #create the window
-root = tk.Tk()
-root.geometry("1000x2000")
+root = Tk()
+#root.geometry is widthxheight
+root.geometry("2000x2000")
 #create editor
-txt = scrolledtext.ScrolledText(root, undo=True, width=50, height=30)
+'''
+tabControl = ttk.Notebook(root) 
+
+tab1 = ttk.Frame(tabControl) 
+tab2 = ttk.Frame(tabControl) 
+
+tabControl.add(tab1, text ='New File') 
+tabControl.pack(expand = 1, fill ="both")
+'''
+notebook = CustomNotebook(width=2000, height=600)
+notebook.pack(side=TOP)
+txt = scrolledtext.ScrolledText(notebook, undo=True, width=30, height=30)
 txt['font'] = ('consolas', '12')
+notebook.add(txt, text='New File')
 #create the run and file menus
-menubar=tk.Menu(root)
-file = tk.Menu(menubar, tearoff = 0) 
-run=tk.Menu(menubar, tearoff=0)
+menubar=Menu(root)
+file = Menu(menubar, tearoff = 0) 
+run=Menu(menubar, tearoff=0)
 menubar.add_cascade(label ='File', menu = file) 
 menubar.add_cascade(label='Run', menu=run)
-file.add_command(label ='New File', command = None) 
+file.add_command(label ='New File', command = new) 
 file.add_command(label ='Open', command = lambda: openfile(txt)) 
 file.add_command(label ='Save', command = lambda: save(txt.get("1.0", 'end-1c'))) 
 file.add_separator() 
 run.add_command(label='Run', command=lambda: execute_prog(filename))
-run.add_command(label="debug", command=lambda: debug(filename))
+run.add_command(label="Debug", command=lambda: debug(filename))
+run.add_command(label="New Terminal", command=term.term)
 run.add_separator()
 #create instance of the console class
 main_console = Console(root)
 #set the window title
 root.title('PMS Python IDE CE')
-txt.pack(expand=True, fill='both')
-main_console.pack(fill=tk.BOTH,expand=True, side='right')
+#pack elements
+#txt.pack(expand=True, fill='both')
+main_console.pack(fill=BOTH,expand=True, side='right')
+#configure tkinter to use menu as the menubar
 root.config(menu = menubar) 
+#run the program
 root.mainloop()
