@@ -10,13 +10,19 @@ import shutil
 import sys
 from tkinter.messagebox import showwarning
 import py_compile
+from typing import List, Any, Union
+
 import term
 from idlelib.tooltip import *
 import re
+import keyboard
+import time
 
 filename=str()
 file=None
-if sys.platform=='darwin':
+if sys.platform=='darwin' or sys.platform=='win32':
+    raise SystemError("PMS does not run on this OS")
+    time.sleep(90)
     exit()
 
 class CustomNotebook(ttk.Notebook):
@@ -190,6 +196,7 @@ class Console(Frame):
         self.ttyText = Text(self, wrap=WORD)
         self.ttyText.pack(fill=BOTH,expand=True)
 
+
 def main(master):
     tip = ListboxToolTip(master, ["Hello", "world"])
 
@@ -229,7 +236,7 @@ def save(code):
 def close(f):
     f.close()
 
-def openfile(textbox):
+def openfile(textbox=None):
     global file
     try:
         notebook.forget(txt)
@@ -282,37 +289,50 @@ def openfile(textbox):
      okaybtn.pack(side="bottom")
      '''
 def new():
-    nexttxt=scrolledtext.ScrolledText(notebook, undo=True, width=30, height=30)
-    nexttxt['font'] = ('consolas', '12')
-    notebook.add(nexttxt,text='New File')
+    notebook.add(txt,text='New File')
 
 def debug(myfile):
     (py_compile.compile(myfile, doraise=True))
+
+def close_tab_in_editor():
+    notebook.forget(notebook.select())
 #create the window
 root = Tk()
 #root.geometry is widthxheight
 root.geometry("2000x2000")
 #create editor
-'''
-tabControl = ttk.Notebook(root) 
 
-tab1 = ttk.Frame(tabControl) 
-tab2 = ttk.Frame(tabControl) 
+def nexttab():
+    try:
+        notebook.select(int(notebook.index('current'))+1)
+    except:
+        notebook.select(0)
 
-tabControl.add(tab1, text ='New File') 
-tabControl.pack(expand = 1, fill ="both")
-'''
+def find():
+    def okay():
+        pattern=pattern.get()
+        re.findall(pattern, txt.get("1.0", END))
+    new=Tk()
+    new.geometry("500x100")
+    label=Label(new, text="Enter your search pattern here:").pack(side=LEFT)
+    pattern=Entry(new, width=50)
+    okaybtn=Button(new, text="Okay", command=okay)
+    new.mainloop()
+
 notebook = CustomNotebook(width=2000, height=600)
 notebook.pack(side=TOP)
 txt = scrolledtext.ScrolledText(notebook, undo=True, width=30, height=30)
 txt['font'] = ('consolas', '12')
+keywords=["with", "import", "try", "except", "True", "False", "def", "class", "as", "from", "await", "pass", "None", "break", "raise"]
 notebook.add(txt, text='New File')
 #create the run and file menus
 menubar=Menu(root)
 file = Menu(menubar, tearoff = 0) 
 run=Menu(menubar, tearoff=0)
+nav=Menu(menubar, tearoff=0)
 menubar.add_cascade(label ='File', menu = file) 
 menubar.add_cascade(label='Run', menu=run)
+menubar.add_cascade(label="Navigate", menu=nav)
 file.add_command(label ='New File', command = new) 
 file.add_command(label ='Open', command = lambda: openfile(txt)) 
 file.add_command(label ='Save', command = lambda: save(txt.get("1.0", 'end-1c'))) 
@@ -321,6 +341,8 @@ run.add_command(label='Run', command=lambda: execute_prog(filename))
 run.add_command(label="Debug", command=lambda: debug(filename))
 run.add_command(label="New Terminal", command=term.term)
 run.add_separator()
+nav.add_command(label="Find in current file", command=find)
+nav.add_separator()
 #create instance of the console class
 main_console = Console(root)
 #set the window title
@@ -329,6 +351,12 @@ root.title('PMS Python IDE CE')
 #txt.pack(expand=True, fill='both')
 main_console.pack(fill=BOTH,expand=True, side='right')
 #configure tkinter to use menu as the menubar
-root.config(menu = menubar) 
+root.config(menu = menubar)
+#add keyboard shortcuts
+keyboard.add_hotkey('ctrl + n', new) 
+keyboard.add_hotkey('ctrl + o', openfile)
+keyboard.add_hotkey('ctrl + s', save, args=txt.get("1.0", 'end-1c'))
+keyboard.add_hotkey('ctrl + w', close_tab_in_editor)
+keyboard.add_hotkey('ctrl + t', nexttab)
 #run the program
 root.mainloop()
