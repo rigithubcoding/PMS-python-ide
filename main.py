@@ -367,6 +367,7 @@ txt.tag_configure('keyword', foreground="#ff5a3e")
 txt.tag_configure("builtin", foreground="#19c5ff")
 txt.tag_configure("string", foregrounf="#008000")
 txt.tag_configure("comment", foreground="#ffa500")
+txt.tag_configure("number", foreground="#7fffd4")
 aimodel=open("ai.pkl", "rb")
 model=pickle.load(aimodel)
 def highlight():
@@ -375,7 +376,7 @@ def highlight():
         if prediction=='builtin':
             pass
         elif prediction=='keyword': pass
-        elif prediction=='': pass
+        elif prediction=='string': pass
 notebook.add(txt, text='New File')
 #create the run and file menus
 menubar=Menu(root)

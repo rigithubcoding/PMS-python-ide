@@ -4,11 +4,12 @@ from sklearn.feature_extraction.text import CountVectorizer
 
 keywords=["with", "import", "try", "except", "True", "False", "def", "class", "as", "from", "await", "pass",    "None", "break", "raise"]
 
-builtins=["abs", "ascii", "bin","open"]
+builtins=["abs", "ascii", "bin","open", "__import__"]
+comment=["#"]
 test_texts=["import", "abs"]
 
-training_texts = keywords + builtins
-training_labels = ["keyword"] * len(keywords) + ["builtin"] * len(builtins)
+training_texts = keywords + builtins + comment
+training_labels = ["keyword"] * len(keywords) + ["builtin"] * len(builtins) +comment*len(comment)
 
 vectorizer = CountVectorizer()
 vectorizer.fit(training_texts)
