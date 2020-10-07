@@ -11,7 +11,7 @@ import sys
 from tkinter.messagebox import showwarning
 import py_compile
 from typing import List, Any, Union
-
+import sklearn
 import term
 from idlelib.tooltip import *
 import re
