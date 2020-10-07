@@ -1,6 +1,8 @@
 import pickle
 from sklearn import tree
 from sklearn.feature_extraction.text import CountVectorizer
+'''this file will train a machine learning model on all the keywords and builtins and whatnot of python and write the model
+to a file called ai.pkl'''
 
 keywords=["with", "import", "try", "except", "True", "False", "def", "class", "as", "from", "await", "pass",    "None", "break", "raise"]
 

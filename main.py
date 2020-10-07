@@ -413,6 +413,6 @@ keyboard.add_hotkey('ctrl + o', openfile)
 keyboard.add_hotkey('ctrl + s', save, args=txt.get("1.0", 'end-1c'))
 keyboard.add_hotkey('ctrl + w', close_tab_in_editor)
 keyboard.add_hotkey('ctrl + t', nexttab)
-keyborad.add_hotkey('ctrl + h', highlight)
+keyboard.add_hotkey('ctrl + h', highlight)
 #run the program
 root.mainloop()
