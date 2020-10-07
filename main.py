@@ -360,4 +360,3 @@ keyboard.add_hotkey('ctrl + w', close_tab_in_editor)
 keyboard.add_hotkey('ctrl + t', nexttab)
 #run the program
 root.mainloop()
->>>>>>> 4e190ed09b3cf8bf39be030ff58a8342942604bd
