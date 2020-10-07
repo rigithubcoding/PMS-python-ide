@@ -338,6 +338,7 @@ def close_tab_in_editor():
     notebook.forget(notebook.select())
 #create the window
 root = Tk()
+root['bg']="#000035"
 #root.geometry is widthxheight
 root.geometry("2000x2000")
 #create editor
@@ -362,6 +363,7 @@ def find():
 notebook = CustomNotebook(width=2000, height=600)
 notebook.pack(side=TOP)
 txt = CustomScrolledText(notebook, undo=True, width=30, height=30)
+txt['bg']="#000035"
 txt['font'] = ('consolas', '12')
 txt.tag_configure('keyword', foreground="#ff5a3e")
 txt.tag_configure("builtin", foreground="#19c5ff")
@@ -374,8 +376,8 @@ def highlight():
     predictions=model.predict(txt.get().split())
     for prediction in predictions:
         if prediction=='builtin':
-            pass
-        elif prediction=='keyword': pass
+            txt.highlight_pattern(prediction, "builtin")
+        elif prediction=='keyword': txt.highlight_pattern(prediction, "keyword")
         elif prediction=='string': pass
 notebook.add(txt, text='New File')
 #create the run and file menus

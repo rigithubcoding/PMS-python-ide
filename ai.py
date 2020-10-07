@@ -6,7 +6,7 @@ keywords=["with", "import", "try", "except", "True", "False", "def", "class", "a
 
 builtins=["abs", "ascii", "bin","open", "__import__"]
 comment=["#"]
-test_texts=["import", "abs"]
+test_texts=["import", "abs", "ascii"]
 
 training_texts = keywords + builtins + comment
 training_labels = ["keyword"] * len(keywords) + ["builtin"] * len(builtins) +comment*len(comment)
