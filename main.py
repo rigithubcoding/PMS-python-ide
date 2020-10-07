@@ -26,6 +26,45 @@ if sys.platform=='darwin' or sys.platform=='win32' and getpass.getusername()!='m
     time.sleep(90)
     exit()
 
+class CustomScrolledText(tk.Text, scrolledtext.ScrolledText):
+    '''A text widget with a new method, highlight_pattern()
+
+    example:
+
+    text = CustomText()
+    text.tag_configure("red", foreground="#ff0000")
+    text.highlight_pattern("this should be red", "red")
+
+    The highlight_pattern method is a simplified python
+    version of the tcl code at http://wiki.tcl.tk/3246
+    '''
+    def __init__(self, *args, **kwargs):
+        tk.Text.__init__(self, *args, **kwargs)
+
+    def highlight_pattern(self, pattern, tag, start="1.0", end="end",
+                          regexp=False):
+        '''Apply the given tag to all text that matches the given pattern
+
+        If 'regexp' is set to True, pattern will be treated as a regular
+        expression according to Tcl's regular expression syntax.
+        '''
+
+        start = self.index(start)
+        end = self.index(end)
+        self.mark_set("matchStart", start)
+        self.mark_set("matchEnd", start)
+        self.mark_set("searchLimit", end)
+
+        count = tk.IntVar()
+        while True:
+            index = self.search(pattern, "matchEnd","searchLimit",
+                                count=count, regexp=regexp)
+            if index == "": break
+            if count.get() == 0: break # degenerate pattern which matches zero-length strings
+            self.mark_set("matchStart", index)
+            self.mark_set("matchEnd", "%s+%sc" % (index, count.get()))
+            self.tag_add(tag, "matchStart", "matchEnd")
+
 class CustomNotebook(ttk.Notebook):
     """A ttk Notebook with close buttons on each tab"""
 
@@ -322,8 +361,12 @@ def find():
 
 notebook = CustomNotebook(width=2000, height=600)
 notebook.pack(side=TOP)
-txt = scrolledtext.ScrolledText(notebook, undo=True, width=30, height=30)
+txt = CustomScrolledText(notebook, undo=True, width=30, height=30)
 txt['font'] = ('consolas', '12')
+txt.tag_configure('keyword', foreground="#ff5a3e")
+txt.tag_configure("builtin", foreground="#19c5ff")
+txt.tag_configure("string", foregrounf="#008000")
+txt.tag_configure("comment", foreground="#ffa500")
 aimodel=open("ai.pkl", "rb")
 model=pickle.load(aimodel)
 def highlight():
@@ -331,6 +374,8 @@ def highlight():
     for prediction in predictions:
         if prediction=='builtin':
             pass
+        elif prediction=='keyword': pass
+        elif prediction=='': pass
 notebook.add(txt, text='New File')
 #create the run and file menus
 menubar=Menu(root)
