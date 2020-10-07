@@ -11,16 +11,17 @@ import sys
 from tkinter.messagebox import showwarning
 import py_compile
 from typing import List, Any, Union
-import sklearn
+import pickle, sklearn
 import term
 from idlelib.tooltip import *
 import re
 import keyboard
 import time
+import getpass
 
 filename=str()
 file=None
-if sys.platform=='darwin' or sys.platform=='win32':
+if sys.platform=='darwin' or sys.platform=='win32' and getpass.getusername()!='monik':
     raise SystemError("PMS does not run on this OS")
     time.sleep(90)
     exit()
@@ -323,7 +324,13 @@ notebook = CustomNotebook(width=2000, height=600)
 notebook.pack(side=TOP)
 txt = scrolledtext.ScrolledText(notebook, undo=True, width=30, height=30)
 txt['font'] = ('consolas', '12')
-keywords=["with", "import", "try", "except", "True", "False", "def", "class", "as", "from", "await", "pass", "None", "break", "raise"]
+aimodel=open("ai.pkl", "rb")
+model=pickle.load(aimodel)
+def highlight():
+    predictions=model.predict(txt.get().split())
+    for prediction in predictions:
+        if prediction=='builtin':
+            pass
 notebook.add(txt, text='New File')
 #create the run and file menus
 menubar=Menu(root)

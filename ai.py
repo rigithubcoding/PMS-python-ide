@@ -17,6 +17,7 @@ testing_vectors = vectorizer.transform(test_texts)
 classifier = tree.DecisionTreeClassifier()
 classifier.fit(training_vectors, training_labels)
 predictions = classifier.predict(testing_vectors)
+print(predictions)
 
 # Dump the trained decision tree classifier with Pickle
 decision_tree_pkl_filename = 'ai.pkl'
