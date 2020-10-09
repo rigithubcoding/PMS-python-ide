@@ -6,7 +6,7 @@ static PyObject* helloworld(PyObject* self)
 }
 
 static char helloworld_docs[] =
-   "helloworld( ): Any message you want to put here!!\n";
+   "this function tells you the CPU percentage\n";
 
 static PyMethodDef helloworld_funcs[] = {
    {"helloworld", (PyCFunction)helloworld, 
