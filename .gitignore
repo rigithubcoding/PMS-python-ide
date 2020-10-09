@@ -1,2 +1,3 @@
 *.o
-system_library/setup.py
+system_lib/*.o
+*.gitignore
