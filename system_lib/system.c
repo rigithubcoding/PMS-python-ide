@@ -18,3 +18,6 @@ void inithelloworld(void)
 {
    Py_InitModule3("helloworld", helloworld_funcs, "Extension module example!");
 }
+int main(){
+   return 0;
+}
