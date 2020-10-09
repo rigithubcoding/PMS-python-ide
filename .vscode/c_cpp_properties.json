@@ -18,7 +18,9 @@
         {
             "name": "gcc",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "/usr/include/**",
+                "/usr/include/python3.8/**"
             ],
             "defines": [
                 "_DEBUG",
@@ -29,7 +31,7 @@
             "cStandard": "c99",
             "cppStandard": "c++17",
             "intelliSenseMode": "gcc-x64",
-            "compilerPath": "C:/MinGW/bin/g++.exe"
+            "compilerPath": "/usr/bin/gcc"
         }
     ],
     "version": 4
