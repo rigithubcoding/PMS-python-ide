@@ -19,5 +19,6 @@ void inithelloworld(void)
    Py_InitModule3("cpupercent", cpupercent_funcs, "Extension module example!");
 }
 int main(){
+   printf("hi");
    return 0;
 }
