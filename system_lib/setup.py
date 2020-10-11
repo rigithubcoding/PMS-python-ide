@@ -1,3 +1,0 @@
-from distutils.core import setup, Extension
-setup(name = 'system', version = '1.0',  \
-   ext_modules = [Extension('system', ['system.c'])])
