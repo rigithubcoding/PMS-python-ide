@@ -26,7 +26,7 @@ if sys.platform=='darwin' or sys.platform=='win32' and getpass.getusername()!='m
     time.sleep(90)
     exit()
 
-class CustomScrolledText(tk.Text, scrolledtext.ScrolledText):
+class CustomScrolledText(scrolledtext.ScrolledText, Text):
     '''A text widget with a new method, highlight_pattern()
 
     example:
@@ -39,7 +39,7 @@ class CustomScrolledText(tk.Text, scrolledtext.ScrolledText):
     version of the tcl code at http://wiki.tcl.tk/3246
     '''
     def __init__(self, *args, **kwargs):
-        tk.Text.__init__(self, *args, **kwargs)
+        Text.__init__(self, *args, **kwargs)
 
     def highlight_pattern(self, pattern, tag, start="1.0", end="end",
                           regexp=False):
@@ -55,7 +55,7 @@ class CustomScrolledText(tk.Text, scrolledtext.ScrolledText):
         self.mark_set("matchEnd", start)
         self.mark_set("searchLimit", end)
 
-        count = tk.IntVar()
+        count =IntVar()
         while True:
             index = self.search(pattern, "matchEnd","searchLimit",
                                 count=count, regexp=regexp)
@@ -133,14 +133,14 @@ class CustomNotebook(ttk.Notebook):
         style.layout("CustomNotebook", [("CustomNotebook.client", {"sticky": "nswe"})])
         style.layout("CustomNotebook.Tab", [
             ("CustomNotebook.tab", {
-                "sticky": "nswe", 
+                "sticky": "nswe",
                 "children": [
                     ("CustomNotebook.padding", {
-                        "side": "top", 
+                        "side": "top",
                         "sticky": "nswe",
                         "children": [
                             ("CustomNotebook.focus", {
-                                "side": "top", 
+                                "side": "top",
                                 "sticky": "nswe",
                                 "children": [
                                     ("CustomNotebook.label", {"side": "left", "sticky": ''}),
@@ -310,7 +310,7 @@ def openfile(textbox=None):
     with open(file, "w+") as f:
         txt.insert(1.0, f.read())
         txt.insert(END, f.read())
-    ''' 
+    '''
     '''
     files=os.listdir()
      opendialog=Tk()
@@ -367,7 +367,7 @@ txt['bg']="#000035"
 txt['font'] = ('consolas', '12')
 txt.tag_configure('keyword', foreground="#ff5a3e")
 txt.tag_configure("builtin", foreground="#19c5ff")
-txt.tag_configure("string", foregrounf="#008000")
+txt.tag_configure("string", foreground="#008000")
 txt.tag_configure("comment", foreground="#ffa500")
 txt.tag_configure("number", foreground="#7fffd4")
 aimodel=open("ai.pkl", "rb")
@@ -382,16 +382,16 @@ def highlight():
 notebook.add(txt, text='New File')
 #create the run and file menus
 menubar=Menu(root)
-file = Menu(menubar, tearoff = 0) 
+file = Menu(menubar, tearoff = 0)
 run=Menu(menubar, tearoff=0)
 nav=Menu(menubar, tearoff=0)
-menubar.add_cascade(label ='File', menu = file) 
+menubar.add_cascade(label ='File', menu = file)
 menubar.add_cascade(label='Run', menu=run)
 menubar.add_cascade(label="Navigate", menu=nav)
-file.add_command(label ='New File', command = new) 
-file.add_command(label ='Open', command = lambda: openfile(txt)) 
-file.add_command(label ='Save', command = lambda: save(txt.get("1.0", 'end-1c'))) 
-file.add_separator() 
+file.add_command(label ='New File', command = new)
+file.add_command(label ='Open', command = lambda: openfile(txt))
+file.add_command(label ='Save', command = lambda: save(txt.get("1.0", 'end-1c')))
+file.add_separator()
 run.add_command(label='Run', command=lambda: execute_prog(filename))
 run.add_command(label="Debug", command=lambda: debug(filename))
 run.add_command(label="New Terminal", command=term.term)
@@ -408,7 +408,7 @@ main_console.pack(fill=BOTH,expand=True, side='right')
 #configure tkinter to use menu as the menubar
 root.config(menu = menubar)
 #add keyboard shortcuts
-keyboard.add_hotkey('ctrl + n', new) 
+keyboard.add_hotkey('ctrl + n', new)
 keyboard.add_hotkey('ctrl + o', openfile)
 keyboard.add_hotkey('ctrl + s', save, args=txt.get("1.0", 'end-1c'))
 keyboard.add_hotkey('ctrl + w', close_tab_in_editor)
