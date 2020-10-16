@@ -1,10 +1,19 @@
 The PMS Public License
 The terms to be used from here on out are listed below:
+
 You - The user/customer/consumer using the product that this license applies to
 We - rigithubcoding
 The software - The software that this license applies to
 
-You may not copy The software without first making sure that it is in a usable state in which minimal complaints shall come in if this software is distributed to a large number of people(greater than 500)
-You are held responsible if the software you copied does not work as intended by You.
+You may not copy The software without first making sure that it is in a usable state in which minimal complaints shall come in if this software is distributed to a large number of people(greater than 500).
+You are held responsible if The software you copied does not work as intended by You.
 
-You also may not copy this software without making 1 or more changes
+You also may not copy this software without making 1 or more changes after The software has been copied but before The software has been distributed.
+
+This license will not terminate.
+If the new software that You have made is not functional, We will not take the blame.
+
+This agreement is entered when You either visit https://github.com/rigithubcoding/PMS-python-ide or clone https://github.com/rigithubcoding/PMS-python-ide.git from the terminal.
+
+Should a court of competent jurisdiction find any provision of this Agreement invalid, then the rest of the Agreement shall continue in force.
+
