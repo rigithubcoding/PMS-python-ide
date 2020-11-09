@@ -21,7 +21,7 @@ import getpass
 
 filename=str()
 file=None
-if sys.platform=='darwin' or sys.platform=='win32' and getpass.getusername()!='monik':
+if sys.platform=='darwin' or sys.platform=='win32':
     raise SystemError("PMS does not run on this OS")
     time.sleep(90)
     exit()
